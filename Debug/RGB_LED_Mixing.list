@@ -37,13 +37,13 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  00019172  00000000  00000000  0002c6c8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000b413  00000000  00000000  0004583a  2**0
+ 17 .debug_line   0000b411  00000000  00000000  0004583a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0009801a  00000000  00000000  00050c4d  2**0
+ 18 .debug_str    0009801a  00000000  00000000  00050c4b  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  000e8c67  2**0
+ 19 .comment      00000053  00000000  00000000  000e8c65  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002bb4  00000000  00000000  000e8cbc  2**2
+ 20 .debug_frame  00002bb4  00000000  00000000  000e8cb8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -430,47 +430,46 @@ int main(void)
  800045a:	f001 f8cf 	bl	80015fc <HAL_GPIO_ReadPin>
  800045e:	4603      	mov	r3, r0
  8000460:	647b      	str	r3, [r7, #68]	; 0x44
-	int position_compteur;
+	int position_compteur=5;
+ 8000462:	2305      	movs	r3, #5
+ 8000464:	643b      	str	r3, [r7, #64]	; 0x40
 	initSEG();
- 8000462:	f7ff fef3 	bl	800024c <initSEG>
+ 8000466:	f7ff fef1 	bl	800024c <initSEG>
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
 		A1= HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
- 8000466:	2104      	movs	r1, #4
- 8000468:	482d      	ldr	r0, [pc, #180]	; (8000520 <main+0x104>)
- 800046a:	f001 f8c7 	bl	80015fc <HAL_GPIO_ReadPin>
- 800046e:	4603      	mov	r3, r0
- 8000470:	637b      	str	r3, [r7, #52]	; 0x34
+ 800046a:	2104      	movs	r1, #4
+ 800046c:	482c      	ldr	r0, [pc, #176]	; (8000520 <main+0x104>)
+ 800046e:	f001 f8c5 	bl	80015fc <HAL_GPIO_ReadPin>
+ 8000472:	4603      	mov	r3, r0
+ 8000474:	637b      	str	r3, [r7, #52]	; 0x34
 		B1= HAL_GPIO_ReadPin(ROT_B_1_GPIO_Port, ROT_B_1_Pin);
- 8000472:	2102      	movs	r1, #2
- 8000474:	482a      	ldr	r0, [pc, #168]	; (8000520 <main+0x104>)
- 8000476:	f001 f8c1 	bl	80015fc <HAL_GPIO_ReadPin>
- 800047a:	4603      	mov	r3, r0
- 800047c:	633b      	str	r3, [r7, #48]	; 0x30
+ 8000476:	2102      	movs	r1, #2
+ 8000478:	4829      	ldr	r0, [pc, #164]	; (8000520 <main+0x104>)
+ 800047a:	f001 f8bf 	bl	80015fc <HAL_GPIO_ReadPin>
+ 800047e:	4603      	mov	r3, r0
+ 8000480:	633b      	str	r3, [r7, #48]	; 0x30
 		B2= HAL_GPIO_ReadPin(ROT_B_2_GPIO_Port, ROT_B_2_Pin);
- 800047e:	f44f 4180 	mov.w	r1, #16384	; 0x4000
- 8000482:	4826      	ldr	r0, [pc, #152]	; (800051c <main+0x100>)
- 8000484:	f001 f8ba 	bl	80015fc <HAL_GPIO_ReadPin>
- 8000488:	4603      	mov	r3, r0
- 800048a:	62fb      	str	r3, [r7, #44]	; 0x2c
+ 8000482:	f44f 4180 	mov.w	r1, #16384	; 0x4000
+ 8000486:	4825      	ldr	r0, [pc, #148]	; (800051c <main+0x100>)
+ 8000488:	f001 f8b8 	bl	80015fc <HAL_GPIO_ReadPin>
+ 800048c:	4603      	mov	r3, r0
+ 800048e:	62fb      	str	r3, [r7, #44]	; 0x2c
 		SW1= HAL_GPIO_ReadPin(ROT_SW_1_GPIO_Port, ROT_SW_1_Pin);
- 800048c:	2101      	movs	r1, #1
- 800048e:	4824      	ldr	r0, [pc, #144]	; (8000520 <main+0x104>)
- 8000490:	f001 f8b4 	bl	80015fc <HAL_GPIO_ReadPin>
- 8000494:	4603      	mov	r3, r0
- 8000496:	62bb      	str	r3, [r7, #40]	; 0x28
+ 8000490:	2101      	movs	r1, #1
+ 8000492:	4823      	ldr	r0, [pc, #140]	; (8000520 <main+0x104>)
+ 8000494:	f001 f8b2 	bl	80015fc <HAL_GPIO_ReadPin>
+ 8000498:	4603      	mov	r3, r0
+ 800049a:	62bb      	str	r3, [r7, #40]	; 0x28
 		SW2= HAL_GPIO_ReadPin(ROT_SW_2_GPIO_Port, ROT_SW_2_Pin);
- 8000498:	f44f 4100 	mov.w	r1, #32768	; 0x8000
- 800049c:	481f      	ldr	r0, [pc, #124]	; (800051c <main+0x100>)
- 800049e:	f001 f8ad 	bl	80015fc <HAL_GPIO_ReadPin>
- 80004a2:	4603      	mov	r3, r0
- 80004a4:	627b      	str	r3, [r7, #36]	; 0x24
-		position_compteur=5;
- 80004a6:	2305      	movs	r3, #5
- 80004a8:	643b      	str	r3, [r7, #64]	; 0x40
+ 800049c:	f44f 4100 	mov.w	r1, #32768	; 0x8000
+ 80004a0:	481e      	ldr	r0, [pc, #120]	; (800051c <main+0x100>)
+ 80004a2:	f001 f8ab 	bl	80015fc <HAL_GPIO_ReadPin>
+ 80004a6:	4603      	mov	r3, r0
+ 80004a8:	627b      	str	r3, [r7, #36]	; 0x24
 
 
 		if(SW2==0)
@@ -496,20 +495,20 @@ int main(void)
  80004ca:	f001 f897 	bl	80015fc <HAL_GPIO_ReadPin>
  80004ce:	4603      	mov	r3, r0
  80004d0:	623b      	str	r3, [r7, #32]
-		if(B2!=lastState)
- 80004d2:	6afa      	ldr	r2, [r7, #44]	; 0x2c
+		if(A2!=lastState)
+ 80004d2:	6a3a      	ldr	r2, [r7, #32]
  80004d4:	6c7b      	ldr	r3, [r7, #68]	; 0x44
  80004d6:	429a      	cmp	r2, r3
  80004d8:	d015      	beq.n	8000506 <main+0xea>
 		{
 
-			if(HAL_GPIO_ReadPin(ROT_B_2_GPIO_Port, ROT_B_2_Pin)!=HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin))
- 80004da:	f44f 4180 	mov.w	r1, #16384	; 0x4000
+			if(HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin)!=HAL_GPIO_ReadPin(ROT_B_2_GPIO_Port, ROT_B_2_Pin))
+ 80004da:	f44f 5100 	mov.w	r1, #8192	; 0x2000
  80004de:	480f      	ldr	r0, [pc, #60]	; (800051c <main+0x100>)
  80004e0:	f001 f88c 	bl	80015fc <HAL_GPIO_ReadPin>
  80004e4:	4603      	mov	r3, r0
  80004e6:	461c      	mov	r4, r3
- 80004e8:	f44f 5100 	mov.w	r1, #8192	; 0x2000
+ 80004e8:	f44f 4180 	mov.w	r1, #16384	; 0x4000
  80004ec:	480b      	ldr	r0, [pc, #44]	; (800051c <main+0x100>)
  80004ee:	f001 f885 	bl	80015fc <HAL_GPIO_ReadPin>
  80004f2:	4603      	mov	r3, r0
@@ -541,7 +540,7 @@ int main(void)
  8000512:	6afb      	ldr	r3, [r7, #44]	; 0x2c
  8000514:	647b      	str	r3, [r7, #68]	; 0x44
 		A1= HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
- 8000516:	e7a6      	b.n	8000466 <main+0x4a>
+ 8000516:	e7a8      	b.n	800046a <main+0x4e>
  8000518:	08002aac 	.word	0x08002aac
  800051c:	40011000 	.word	0x40011000
  8000520:	40010c00 	.word	0x40010c00

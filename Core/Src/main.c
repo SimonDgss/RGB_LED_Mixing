@@ -341,7 +341,7 @@ int main(void)
 	int delai=1000;
 	int A1=0; int A2;int B1;	int B2;	int SW1; int SW2;int digit[4];
 	int lastState=HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin);
-	int position_compteur;
+	int position_compteur=5;
 	initSEG();
 
 
@@ -361,7 +361,6 @@ int main(void)
 		B2= HAL_GPIO_ReadPin(ROT_B_2_GPIO_Port, ROT_B_2_Pin);
 		SW1= HAL_GPIO_ReadPin(ROT_SW_1_GPIO_Port, ROT_SW_1_Pin);
 		SW2= HAL_GPIO_ReadPin(ROT_SW_2_GPIO_Port, ROT_SW_2_Pin);
-		position_compteur=5;
 
 
 		if(SW2==0)
@@ -371,10 +370,10 @@ int main(void)
 			delay(delai);
 		}
 		A2= HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin);
-		if(B2!=lastState)
+		if(A2!=lastState)
 		{
 
-			if(HAL_GPIO_ReadPin(ROT_B_2_GPIO_Port, ROT_B_2_Pin)!=HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin))
+			if(HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin)!=HAL_GPIO_ReadPin(ROT_B_2_GPIO_Port, ROT_B_2_Pin))
 			{
 				position_compteur++;
 			}
