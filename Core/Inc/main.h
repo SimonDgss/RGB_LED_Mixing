@@ -69,6 +69,12 @@ void Error_Handler(void);
 #define ROT_B_2_GPIO_Port GPIOC
 #define ROT_SW_2_Pin GPIO_PIN_15
 #define ROT_SW_2_GPIO_Port GPIOC
+#define PC3_Pin GPIO_PIN_3
+#define PC3_GPIO_Port GPIOC
+#define PC4_Pin GPIO_PIN_4
+#define PC4_GPIO_Port GPIOC
+#define PC5_Pin GPIO_PIN_5
+#define PC5_GPIO_Port GPIOC
 #define ROT_SW_1_Pin GPIO_PIN_0
 #define ROT_SW_1_GPIO_Port GPIOB
 #define ROT_B_1_Pin GPIO_PIN_1

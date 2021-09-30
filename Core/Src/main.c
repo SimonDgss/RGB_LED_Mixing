@@ -305,9 +305,12 @@ void printFigures(int number,uint16_t Pin, int leading_zero)
 
 void affichageDig(int position_compteur,int delai,int position, int limpos,int limneg)
 {
-	static int i=0;
+	static int check=0;
+	static int i;
 	int digit[4];
 	int pos=position*6;
+	if (check!=position)
+			i--;
 	switch (i){
 
 	case 0:
@@ -327,7 +330,6 @@ void affichageDig(int position_compteur,int delai,int position, int limpos,int l
 		digit[1]=((abs(position_compteur)-digit[0])/10)%10;
 		digit[2]=((abs(position_compteur)-digit[1]*10-digit[0])/100)%10;
 		digit[3]=((abs(position_compteur)-digit[2]*100-digit[0]-digit[1]*10)/1000)%10;
-
 		printFigures(digit[0], DIGIT4_Pin<<pos,1);
 		HAL_Delay(delai);
 		break;
@@ -391,6 +393,8 @@ void affichageDig(int position_compteur,int delai,int position, int limpos,int l
 			printFigures(digit[3], DIGIT1_Pin<<pos, 1);
 		}
 		i=-1;
+		if (check==position)
+				i=3;
 		HAL_Delay(delai);
 		break;
 	}
@@ -431,6 +435,55 @@ void affichageChar(char * word,int delai, int position)
 	}
 	i++;
 }
+/*
+void incremental(int switchport1, int switchport2,int switchpin1,int switchpin2,int parameter, int limneg,int limpositive)
+{
+	static int lastState1=0;
+	lastState1=HAL_GPIO_ReadPin(switchport1, switchpin1);
+	static int etatsw=0;
+	HAL_Delay(1);
+	if(HAL_GPIO_ReadPin(switchport1, switchpin1)!=lastState1)
+	{
+		if(HAL_GPIO_ReadPin(switchport1, switchpin1)!=HAL_GPIO_ReadPin(switchport2, switchpin2))
+		{
+			etatsw=2;
+			while(etatsw==2)
+			{
+				lastState1=HAL_GPIO_ReadPin(switchport1, switchpin1);
+				HAL_Delay(1);
+				if (parameter<=limneg)
+					parameter=limneg;
+				else
+				{
+					parameter--;
+				}
+				if(HAL_GPIO_ReadPin(switchport1, switchpin1)==lastState1)
+					etatsw=0;
+				if(HAL_GPIO_ReadPin(switchport1, switchpin1)==HAL_GPIO_ReadPin(switchport2, switchpin2))
+					etatsw=1;
+			}
+		}
+		else
+		{
+			etatsw=1;
+			while(etatsw==1)
+			{
+				lastState1=HAL_GPIO_ReadPin(switchport1, switchpin1);
+				HAL_Delay(1);
+				if (parameter>=limpositive)
+					parameter=limpositive;
+				else
+				{
+					parameter++;
+				}
+				if(HAL_GPIO_ReadPin(switchport1, switchpin1)==lastState1)
+					etatsw=0;
+				if(HAL_GPIO_ReadPin(switchport1, switchpin1)!=HAL_GPIO_ReadPin(switchport2, switchpin2))
+					etatsw=2;
+			}
+		}
+	}
+}*/
 
 
 /* USER CODE END 0 */
@@ -475,16 +528,18 @@ int main(void)
 	int SW1; int SW2;
 	int lastState=HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin);
 	int lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
-	int position_compteur=1000000;
-	int duty_cycler=2;int duty_cycleg=2;int duty_cycleb=2;
 
-	int frequency=100;
+	int duty_cycler=5;int duty_cycleg=5;int duty_cycleb=5;
 
+	int frequency=1;
+	int32_t autoreload = 40000000/ (((TIM2->PSC))*(frequency));
+	int32_t compare=(duty_cycleb*autoreload)/100;
+	__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, compare);
 
 	int pulser=1000;int pulseg=1000;int pulseb=1000;
 	static int i=0;
 	char word[9]="BICHONS.";
-	static int etat=tachefond;
+	static int etat=freq;
 	int etatsw=0; //1=-- 2=++
 	int etatsw2=0;
 	static int couleur=blanc;
@@ -501,71 +556,47 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
+		//HAL_GPIO_WritePin(PC3_GPIO_Port,PC3_Pin , GPIO_PIN_SET);
 		SW1= HAL_GPIO_ReadPin(ROT_SW_1_GPIO_Port, ROT_SW_1_Pin);
 		SW2= HAL_GPIO_ReadPin(ROT_SW_2_GPIO_Port, ROT_SW_2_Pin);
-
-		//Encodeur 1 variation duty cycle à droite
-
-		//Compteur encodeur 2 à gauche
-
-
-
 
 		switch(etat)
 		{
 		case tachefond:
 
 			switch (i){
-
 			case 0:
-			{
 				printchar(word[i],DIGIT1_Pin);
 				HAL_Delay(delai);
-			}
 			break;
 			case 1:
-			{
 				printchar(word[i],DIGIT2_Pin);
 				HAL_Delay(delai);
-			}
 			break;
 			case 2:
-			{
 				printchar(word[i],DIGIT3_Pin);
 				HAL_Delay(delai);
-			}
 			break;
 			case 3:
-			{
 				printchar(word[i],DIGIT4_Pin);
 				HAL_Delay(delai);
-			}
 			break;
 			case 4:
-			{
 				printchar(word[i],DIGIT5_Pin);
 				HAL_Delay(delai);
-			}
 			break;
 			case 5:
-			{
 				printchar(word[i],DIGIT6_Pin);
 				HAL_Delay(delai);
-			}
 			break;
 			case 6:
-			{
 				printchar(word[i],DIGIT7_Pin);
 				HAL_Delay(delai);
-			}
 			break;
 			case 7:
-			{
 				printchar(word[i],DIGIT8_Pin);
 				i=-1;
 				HAL_Delay(delai);
-			}
 			break;
 			}
 			i++;
@@ -653,7 +684,12 @@ int main(void)
 						{
 							lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
 							HAL_Delay(1);
-							duty_cycleg--;
+							if (duty_cycleg<=0)
+								duty_cycleg=0;
+							else
+							{
+								duty_cycleg--;
+							}
 							__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, duty_cycleg*10);
 
 							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState1)
@@ -669,7 +705,12 @@ int main(void)
 						{
 							lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
 							HAL_Delay(1);
-							duty_cycleg++;
+							if (duty_cycleg>=100)
+								duty_cycleg=100;
+							else
+							{
+								duty_cycleg++;
+							}
 							__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, duty_cycleg*10);
 
 							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState1)
@@ -706,7 +747,12 @@ int main(void)
 						{
 							lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
 							HAL_Delay(1);
-							duty_cycler--;
+							if (duty_cycler<=0)
+								duty_cycler=0;
+							else
+							{
+								duty_cycler--;
+							}
 							__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, duty_cycler*10);
 
 							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState1)
@@ -722,7 +768,12 @@ int main(void)
 						{
 							lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
 							HAL_Delay(1);
-							duty_cycler++;
+							if (duty_cycler>=100)
+								duty_cycler=100;
+							else
+							{
+								duty_cycler++;
+							}
 							__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_3, duty_cycler*10);
 
 							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState1)
@@ -760,7 +811,12 @@ int main(void)
 						{
 							lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
 							HAL_Delay(1);
-							duty_cycleb--;
+							if (duty_cycleb<=0)
+								duty_cycleb=0;
+							else
+							{
+								duty_cycleb--;
+							}
 							__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, duty_cycleb*10);
 
 							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState1)
@@ -776,7 +832,12 @@ int main(void)
 						{
 							lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
 							HAL_Delay(1);
-							duty_cycleb++;
+							if (duty_cycleb>=100)
+								duty_cycleb=100;
+							else
+							{
+								duty_cycleb++;
+							}
 							__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, duty_cycleb*10);
 
 							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState1)
@@ -798,84 +859,34 @@ int main(void)
 					etat=freq;
 				}
 				break;
+
 			case freq:
-				lastState=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
-				affichageDig(frequency,delai,GAUCHE,9900,100);
+				lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
+				lastState=HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin);
+				static int u=0;
+
+				affichageDig(frequency,delai,GAUCHE,9901,1);
 				affichageDig(duty_cycleb,delai,DROITE,100,0);
-				/*switch(couleur)
-				{
-					case blanc:
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pulser/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pulseg/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseb/10);
-						pulseg--;
-						if(pulseg==0)
-							couleur=violet;
-						break;
-					case violet:
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pulser/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pulseg/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseb/10);
-						pulser--;
-						if(pulser==0)
-							couleur=bleu;
-						break;
-					case bleu:
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pulser/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pulseg/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseb/10);
-						pulseg++;
-						if(pulseg==1000)
-							couleur=cyan;
-						break;
-					case cyan:
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pulser/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pulseg/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseb/10);
-						pulseb--;
-						if(pulseb==0)
-							couleur=vert;
-						break;
-					case vert:
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pulser/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pulseg/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseb/10);
-						pulser++;
-						if(pulser==1000)
-							couleur=jaune;
-						break;
-					case jaune:
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pulser/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pulseg/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseb/10);
-						pulseg--;
-						if(pulseg==0)
-							couleur=rouge;
-						break;
-					case rouge:
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_4, pulser/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_3, pulseg/10);
-						__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, pulseb/10);
-						pulseg++;
-						pulseb++;
-						if(pulseg==1000)
-							couleur=blanc;
-						break;
-				}*/
 
 				//Rotary Switch Duty Cycle
-				if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)!=lastState)
+				if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)!=lastState1)
 				{
 					if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)!=HAL_GPIO_ReadPin(ROT_B_1_GPIO_Port, ROT_B_1_Pin))
 					{
 						etatsw=2;
 						while(etatsw==2)
 						{
-							lastState=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
+							lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
 							HAL_Delay(1);
-							duty_cycleb--;
-							__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, duty_cycleb*frequency);
-							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState)
+							if (duty_cycleb<=0)
+								duty_cycleb=0;
+							else
+							{
+								duty_cycleb--;
+							}
+							compare=duty_cycleb*autoreload/100;
+							__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, compare);
+							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState1)
 								etatsw=0;
 							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==HAL_GPIO_ReadPin(ROT_B_1_GPIO_Port, ROT_B_1_Pin))
 								etatsw=1;
@@ -886,12 +897,18 @@ int main(void)
 						etatsw=1;
 						while(etatsw==1)
 						{
-							lastState=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
+							lastState1=HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin);
 							HAL_Delay(1);
-							duty_cycleb++;
-							__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, duty_cycleb*frequency);
+							if (duty_cycleb>=100)
+								duty_cycleb=100;
+							else
+							{
+								duty_cycleb++;
+							}
+							compare=duty_cycleb*autoreload/100;
+							__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, compare);
 
-							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState)
+							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)==lastState1)
 								etatsw=0;
 							if(HAL_GPIO_ReadPin(ROT_A_1_GPIO_Port, ROT_A_1_Pin)!=HAL_GPIO_ReadPin(ROT_B_1_GPIO_Port, ROT_B_1_Pin))
 								etatsw=2;
@@ -906,14 +923,19 @@ int main(void)
 										etatsw2=2;
 										while(etatsw2==2)
 										{
-											lastState=HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_1_Pin);
+											lastState=HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin);
 											HAL_Delay(1);
-											if (frequency==100)
-												frequency=100;
-											else
+											if (frequency<=1)
+												frequency=1;
+											if(frequency>200)
 												frequency-=100;
-											__HAL_TIM_SET_AUTORELOAD(&htim2,frequency*100);
-											__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, duty_cycleb*frequency);
+											else
+												frequency-=10;
+
+											autoreload=40000000/((TIM2->PSC)*(frequency));
+											compare=duty_cycleb*autoreload/100;
+											__HAL_TIM_SET_AUTORELOAD(&htim2,autoreload);
+											__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, compare);
 											if(HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin)==lastState)
 												etatsw2=0;
 											if(HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin)==HAL_GPIO_ReadPin(ROT_B_2_GPIO_Port, ROT_B_2_Pin))
@@ -927,11 +949,17 @@ int main(void)
 										{
 											lastState=HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin);
 											HAL_Delay(1);
-											if (frequency==9900)
-												frequency=9900;
+											if (frequency>9801)
+												frequency=9901;
+											else if(frequency>200)
+												frequency+=100;
 											else
-												frequency-=100;
-											__HAL_TIM_SET_AUTORELOAD(&htim2,frequency*100);
+												frequency+=10;
+
+											autoreload=40000000/((TIM2->PSC)*(frequency));
+											compare=duty_cycleb*autoreload/100;
+											__HAL_TIM_SET_AUTORELOAD(&htim2,autoreload);
+											__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, compare);
 
 											if(HAL_GPIO_ReadPin(ROT_A_2_GPIO_Port, ROT_A_2_Pin)==lastState)
 												etatsw2=0;
@@ -942,10 +970,12 @@ int main(void)
 								}
 				if(SW1==0)
 				{
-					frequency=100;
-					__HAL_TIM_SET_AUTORELOAD(&htim2,frequency*100);
-					duty_cycleb=2;
-					__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, duty_cycleb*frequency);
+					frequency=101;
+					autoreload=40000000/((TIM2->PSC)*(frequency));
+					__HAL_TIM_SET_AUTORELOAD(&htim2,autoreload);
+					duty_cycleb=20;
+					compare=duty_cycleb*autoreload/100;
+					__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, compare);
 				}
 				if(SW2==0)
 				{
@@ -953,7 +983,17 @@ int main(void)
 					HAL_Delay(200);
 					etat=tachefond;
 				}
+				__HAL_TIM_SET_AUTORELOAD(&htim2,autoreload);
+				__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, compare);
 
+				u++;
+					HAL_GPIO_WritePin(PC3_GPIO_Port,PC3_Pin , GPIO_PIN_SET);
+					HAL_Delay(0.01*u);
+					HAL_GPIO_WritePin(PC3_GPIO_Port,PC3_Pin , GPIO_PIN_RESET);
+				if(u>100000)
+				{
+					u=0;
+				}
 		}
 
 		}
@@ -978,7 +1018,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI_DIV2;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL2;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL10;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -988,16 +1028,16 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
   {
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV2;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -1069,9 +1109,9 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 4;
+  htim2.Init.Prescaler = 4000;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 10000;
+  htim2.Init.Period = 1000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -1094,14 +1134,14 @@ static void MX_TIM2_Init(void)
     Error_Handler();
   }
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 0;
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
+  sConfigOC.Pulse = 20;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     Error_Handler();
   }
-  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.Pulse = 0;
   if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     Error_Handler();
@@ -1200,7 +1240,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|SEG_B_Pin
+  HAL_GPIO_WritePin(GPIOC, PC3_Pin|PC4_Pin|PC5_Pin|SEG_B_Pin
                           |SEG_C_Pin|SEG_D_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
@@ -1220,9 +1260,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PC3 PC4 PC5 SEG_B_Pin
+  /*Configure GPIO pins : PC3_Pin PC4_Pin PC5_Pin SEG_B_Pin
                            SEG_C_Pin SEG_D_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|SEG_B_Pin
+  GPIO_InitStruct.Pin = PC3_Pin|PC4_Pin|PC5_Pin|SEG_B_Pin
                           |SEG_C_Pin|SEG_D_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
